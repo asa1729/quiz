@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4択クイズゲーム</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            color: #4a5568;
+        }
+
+        /* 進行度・スコア表示 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* 問題文 */
+        .question-box {
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        /* 選択肢ボタン */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f7fafc;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #ebf8ff;
+            border-color: #3182ce;
+        }
+
+        /* 正解・不正解のスタイリング */
+        .option-btn.correct {
+            background-color: #c6f6d5 !important;
+            border-color: #38a169 !important;
+            color: #22543d !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fed7d7 !important;
+            border-color: #e53e3e !important;
+            color: #742a2a !important;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        /* スタート・リスタート画面ボタン */
+        .main-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #4c51bf;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-btn:hover {
+            background-color: #434190;
+            transform: scale(1.03);
+        }
+
+        /* 非表示クラス */
+        .hidden {
+            display: none !important;
+        }
+
+        /* リザルト画面 */
+        .result-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4c51bf;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <!-- 1. スタート画面 -->
+        <div id="startScreen">
+            <h1>4択クイズチャレンジ</h1>
+            <p>登録された問題がランダムに出題されます！</p>
+            <button id="startBtn" class="main-btn">クイズをはじめる</button>
+        </div>
+
+        <!-- 2. クイズプレイ画面 -->
+        <div id="quizScreen" class="hidden">
+            <div class="status-bar">
+                <span id="questionProgress">第 1 問</span>
+                <span id="currentScore">スコア: 0</span>
+            </div>
+
+            <div id="questionText" class="question-box">問題文がここに入ります</div>
+
+            <div class="options-grid">
+                <button class="option-btn" data-index="0">選択肢 1</button>
+                <button class="option-btn" data-index="1">選択肢 2</button>
+                <button class="option-btn" data-index="2">選択肢 3</button>
+                <button class="option-btn" data-index="3">選択肢 4</button>
+            </div>
+        </div>
+
+        <!-- 3. 結果画面 -->
+        <div id="resultScreen" class="hidden">
+            <h1>結果発表</h1>
+            <div id="resultScore" class="result-score">5 問中 0 問正解！</div>
+            <p id="resultComment">お疲れ様でした！</p>
+            <button id="restartBtn" class="main-btn">もう一度挑戦する</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // クイズデータ（ここを自由に編集・追加してください）
+        // ==========================================
+        const quizData = [
+            {
+                question: "日本で一番高い山は次のうちどれ？",
+                options: ["北岳", "富士山", "奥穂高岳", "槍ヶ岳"],
+                answer: 1 // 正解の番号（0番目から数えて1番目 ＝「富士山」）
+            },
+            {
+                question: "太陽系で最も大きい惑星はどれ？",
+                options: ["土星", "火星", "木星", "天王星"],
+                answer: 2 // 正解：「木星」
+            },
+            {
+                question: "ウェブページを作る際に、文章の構造を定義する言語は？",
+                options: ["HTML", "CSS", "JavaScript", "Python"],
+                answer: 0 // 正解：「HTML」
+            },
+            {
+                question: "1年（平年）は何日？",
+                options: ["364日", "365日", "366日", "367日"],
+                answer: 1 // 正解：「365日」
+            },
+            {
+                question: "世界で最も面積が広い国は？",
+                options: ["アメリカ", "中国", "カナダ", "ロシア"],
+                answer: 3 // 正解：「ロシア」
+            }
+        ];
+
+        // 状態管理用変数
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // DOM要素の取得
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        const questionProgress = document.getElementById('questionProgress');
+        const currentScore = document.getElementById('currentScore');
+        const questionText = document.getElementById('questionText');
+        const optionButtons = document.querySelectorAll('.option-btn');
+
+        const resultScore = document.getElementById('resultScore');
+        const resultComment = document.getElementById('resultComment');
+
+        // クイズ開始処理
+        function startQuiz() {
+            // クイズデータをシャッフル（ランダム化）
+            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            showQuestion();
+        }
+
+        // 問題の表示
+        function showQuestion() {
+            resetState();
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+
+            // UI更新
+            questionProgress.textContent = `第 ${currentQuestionIndex + 1} / ${shuffledQuestions.length} 問`;
+            currentScore.textContent = `スコア: ${score}`;
+            questionText.textContent = currentQuestion.question;
+
+            // 選択肢ボタンにテキストを設定
+            optionButtons.forEach((button, index) => {
+                button.textContent = `${index + 1}. ${currentQuestion.options[index]}`;
+            });
+        }
+
+        // ボタンの状態リセット
+        function resetState() {
+            optionButtons.forEach(button => {
+                button.classList.remove('correct', 'wrong');
+                button.disabled = false;
+            });
+        }
+
+        // 回答選択時の処理
+        function selectOption(e) {
+            const selectedButton = e.target;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
+            const correctIndex = shuffledQuestions[currentQuestionIndex].answer;
+
+            // 全ボタンを無効化（連打防止）
+            optionButtons.forEach(button => button.disabled = true);
+
+            // 正解判定
+            if (selectedIndex === correctIndex) {
+                selectedButton.classList.add('correct');
+                score++;
+                currentScore.textContent = `スコア: ${score}`;
+            } else {
+                selectedButton.classList.add('wrong');
+                // 正解のボタンを緑色で強調
+                optionButtons[correctIndex].classList.add('correct');
+            }
+
+            // 1.2秒後に次の問題へ
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1200);
+        }
+
+        // 結果画面の表示
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const total = shuffledQuestions.length;
+            resultScore.textContent = `${total} 問中 ${score} 問正解！`;
+
+            // 正解率に応じたコメント設定
+            const ratio = score / total;
+            if (ratio === 1) {
+                resultComment.textContent = "全問正解！素晴らしい！パーフェクトです！🎉";
+            } else if (ratio >= 0.6) {
+                resultComment.textContent = "合格レベルです！よくがんばりました！👏";
+            } else {
+                resultComment.textContent = "もう少し！もう一度チャレンジしてみよう！💪";
+            }
+        }
+
+        // イベントリスナーの設定
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+        optionButtons.forEach(button => {
+            button.addEventListener('click', selectOption);
+        });
+    </script>
+
+</body>
+</html>
