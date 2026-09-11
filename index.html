@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4択クイズゲーム</title>
+    <title>ゲーム知識クイズ</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,7 +13,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             color: #333;
             display: flex;
             justify-content: center;
@@ -22,9 +22,9 @@
         }
 
         .quiz-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             width: 100%;
             max-width: 500px;
             padding: 30px;
@@ -32,9 +32,9 @@
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             margin-top: 0;
-            color: #4a5568;
+            color: #312e81;
         }
 
         /* 進行度・スコア表示 */
@@ -42,21 +42,35 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
-            color: #718096;
+            color: #64748b;
             margin-bottom: 15px;
             font-weight: bold;
+        }
+
+        /* 変更点1: ゲームタイトルの表示タグ */
+        .game-title-tag {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #c7d2fe;
         }
 
         /* 問題文 */
         .question-box {
             font-size: 1.2rem;
             font-weight: bold;
-            min-height: 70px;
+            min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 25px;
             line-height: 1.4;
+            color: #1e293b;
         }
 
         /* 選択肢ボタン */
@@ -71,9 +85,9 @@
             padding: 14px 20px;
             font-size: 1rem;
             border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            background-color: #f7fafc;
-            color: #2d3748;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            color: #334155;
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: left;
@@ -81,21 +95,21 @@
         }
 
         .option-btn:hover:not(:disabled) {
-            background-color: #ebf8ff;
-            border-color: #3182ce;
+            background-color: #e0f2fe;
+            border-color: #0284c7;
         }
 
         /* 正解・不正解のスタイリング */
         .option-btn.correct {
-            background-color: #c6f6d5 !important;
-            border-color: #38a169 !important;
-            color: #22543d !important;
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #14532d !important;
         }
 
         .option-btn.wrong {
-            background-color: #fed7d7 !important;
-            border-color: #e53e3e !important;
-            color: #742a2a !important;
+            background-color: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #7f1d1d !important;
         }
 
         .option-btn:disabled {
@@ -108,16 +122,16 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: white;
-            background-color: #4c51bf;
+            background-color: #4f46e5;
             border: none;
             border-radius: 25px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
         }
 
         .main-btn:hover {
-            background-color: #434190;
+            background-color: #4338ca;
             transform: scale(1.03);
         }
 
@@ -130,7 +144,7 @@
         .result-score {
             font-size: 2rem;
             font-weight: bold;
-            color: #4c51bf;
+            color: #4f46e5;
             margin: 20px 0;
         }
     </style>
@@ -140,9 +154,9 @@
     <div class="quiz-container">
         <!-- 1. スタート画面 -->
         <div id="startScreen">
-            <h1>4択クイズチャレンジ</h1>
-            <p>登録された問題がランダムに出題されます！</p>
-            <button id="startBtn" class="main-btn">クイズをはじめる</button>
+            <h1>🎮 ゲームタイトルクイズ</h1>
+            <p>名作ゲームに関するクイズに挑戦！</p>
+            <button id="startBtn" class="main-btn">ゲームスタート</button>
         </div>
 
         <!-- 2. クイズプレイ画面 -->
@@ -151,6 +165,9 @@
                 <span id="questionProgress">第 1 問</span>
                 <span id="currentScore">スコア: 0</span>
             </div>
+
+            <!-- 変更点2: ゲームタイトルの表示エリア -->
+            <div id="gameTitle" class="game-title-tag">ゲームタイトル</div>
 
             <div id="questionText" class="question-box">問題文がここに入ります</div>
 
@@ -164,51 +181,55 @@
 
         <!-- 3. 結果画面 -->
         <div id="resultScreen" class="hidden">
-            <h1>結果発表</h1>
+            <h1>リザルト</h1>
             <div id="resultScore" class="result-score">5 問中 0 問正解！</div>
             <p id="resultComment">お疲れ様でした！</p>
-            <button id="restartBtn" class="main-btn">もう一度挑戦する</button>
+            <button id="restartBtn" class="main-btn">もう一度プレイ</button>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // クイズデータ（ここを自由に編集・追加してください）
+        // 変更点3: ゲームタイトルを追加したクイズデータ
         // ==========================================
         const quizData = [
             {
-                question: "日本で一番高い山は次のうちどれ？",
-                options: ["北岳", "富士山", "奥穂高岳", "槍ヶ岳"],
-                answer: 1 // 正解の番号（0番目から数えて1番目 ＝「富士山」）
+                gameTitle: "カービィ，東方project",
+                question: "次のカービィBGMに混ざった東方projectのBGMはどれ？",
+                options: ["この星をかけた魂の戦い", "故郷の星が映る海", "星砕きの戯れ", "双星はいつしかロッシュ限界へ"],
+                answer: 1
             },
             {
-                question: "太陽系で最も大きい惑星はどれ？",
-                options: ["土星", "火星", "木星", "天王星"],
-                answer: 2 // 正解：「木星」
+                gameTitle: "Minecraft（java）",
+                question: "最も攻撃力が高い武器は？",
+                options: ["赤", "緑", "青", "黄"],
+                answer: 2
             },
             {
-                question: "ウェブページを作る際に、文章の構造を定義する言語は？",
-                options: ["HTML", "CSS", "JavaScript", "Python"],
-                answer: 0 // 正解：「HTML」
+                gameTitle: "ポケットモンスター",
+                question: "全国図鑑ナンバー0001のポケモンはどれ？",
+                options: ["ピカチュウ", "ヒトカゲ", "フシギダネ", "ゼニガメ"],
+                answer: 2
             },
             {
-                question: "1年（平年）は何日？",
-                options: ["364日", "365日", "366日", "367日"],
-                answer: 1 // 正解：「365日」
+                gameTitle: "ゼルダの伝説",
+                question: "主人公（緑の服を着た剣士）の名前は？",
+                options: ["ゼルダ", "リンク", "ガノンドロフ", "エポナ"],
+                answer: 1
             },
             {
-                question: "世界で最も面積が広い国は？",
-                options: ["アメリカ", "中国", "カナダ", "ロシア"],
-                answer: 3 // 正解：「ロシア」
+                gameTitle: "パックマン",
+                question: "パックマンの大好物で、食べるとモンスターを撃退できるようになるアイテムは？",
+                options: ["パワーエサ", "スーパーキノコ", "チェリー", "スター"],
+                answer: 0
             }
         ];
 
-        // 状態管理用変数
         let shuffledQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
 
-        // DOM要素の取得
+        // DOM要素
         const startScreen = document.getElementById('startScreen');
         const quizScreen = document.getElementById('quizScreen');
         const resultScreen = document.getElementById('resultScreen');
@@ -218,15 +239,15 @@
 
         const questionProgress = document.getElementById('questionProgress');
         const currentScore = document.getElementById('currentScore');
+        const gameTitleText = document.getElementById('gameTitle'); // 追加
         const questionText = document.getElementById('questionText');
         const optionButtons = document.querySelectorAll('.option-btn');
 
         const resultScore = document.getElementById('resultScore');
         const resultComment = document.getElementById('resultComment');
 
-        // クイズ開始処理
+        // 開始処理
         function startQuiz() {
-            // クイズデータをシャッフル（ランダム化）
             shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
             currentQuestionIndex = 0;
             score = 0;
@@ -238,7 +259,7 @@
             showQuestion();
         }
 
-        // 問題の表示
+        // 問題表示
         function showQuestion() {
             resetState();
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
@@ -246,15 +267,16 @@
             // UI更新
             questionProgress.textContent = `第 ${currentQuestionIndex + 1} / ${shuffledQuestions.length} 問`;
             currentScore.textContent = `スコア: ${score}`;
+            
+            // 変更点4: ゲームタイトルと問題文をセット
+            gameTitleText.textContent = `🎮 ${currentQuestion.gameTitle}`;
             questionText.textContent = currentQuestion.question;
 
-            // 選択肢ボタンにテキストを設定
             optionButtons.forEach((button, index) => {
                 button.textContent = `${index + 1}. ${currentQuestion.options[index]}`;
             });
         }
 
-        // ボタンの状態リセット
         function resetState() {
             optionButtons.forEach(button => {
                 button.classList.remove('correct', 'wrong');
@@ -262,27 +284,22 @@
             });
         }
 
-        // 回答選択時の処理
         function selectOption(e) {
             const selectedButton = e.target;
             const selectedIndex = parseInt(selectedButton.dataset.index);
             const correctIndex = shuffledQuestions[currentQuestionIndex].answer;
 
-            // 全ボタンを無効化（連打防止）
             optionButtons.forEach(button => button.disabled = true);
 
-            // 正解判定
             if (selectedIndex === correctIndex) {
                 selectedButton.classList.add('correct');
                 score++;
                 currentScore.textContent = `スコア: ${score}`;
             } else {
                 selectedButton.classList.add('wrong');
-                // 正解のボタンを緑色で強調
                 optionButtons[correctIndex].classList.add('correct');
             }
 
-            // 1.2秒後に次の問題へ
             setTimeout(() => {
                 currentQuestionIndex++;
                 if (currentQuestionIndex < shuffledQuestions.length) {
@@ -293,7 +310,6 @@
             }, 1200);
         }
 
-        // 結果画面の表示
         function showResult() {
             quizScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
@@ -301,18 +317,16 @@
             const total = shuffledQuestions.length;
             resultScore.textContent = `${total} 問中 ${score} 問正解！`;
 
-            // 正解率に応じたコメント設定
             const ratio = score / total;
             if (ratio === 1) {
-                resultComment.textContent = "全問正解！素晴らしい！パーフェクトです！🎉";
+                resultComment.textContent = "全問正解！まさにゲームマスターです！🏆";
             } else if (ratio >= 0.6) {
-                resultComment.textContent = "合格レベルです！よくがんばりました！👏";
+                resultComment.textContent = "素晴らしい！かなりのゲーマーですね！🎮";
             } else {
-                resultComment.textContent = "もう少し！もう一度チャレンジしてみよう！💪";
+                resultComment.textContent = "お見事！次回は全問正解を目指そう！💪";
             }
         }
 
-        // イベントリスナーの設定
         startBtn.addEventListener('click', startQuiz);
         restartBtn.addEventListener('click', startQuiz);
         optionButtons.forEach(button => {
