@@ -194,12 +194,6 @@
         // ==========================================
         const quizData = [
             {
-                gameTitle: "カービィ，東方project",
-                question: "次のカービィBGMに混ざった東方projectのBGMはどれ？",
-                options: ["この星をかけた魂の戦い", "故郷の星が映る海", "星砕きの戯れ", "双星はいつしかロッシュ限界へ"],
-                answer: 1
-            },
-            {
                 gameTitle: "Minecraft(java)",
                 question: "最も基礎攻撃力が高い武器は？",
                 options: ["鉄の剣", "緑", "木の斧", "黄"],
@@ -218,16 +212,52 @@
                 answer: 1
             },
             {
-                gameTitle: "パックマン",
-                question: "パックマンの大好物で、食べるとモンスターを撃退できるようになるアイテムは？",
-                options: ["パワーエサ", "スーパーキノコ", "チェリー", "スター"],
-                answer: 0
+                gameTitle: "ゼルダの伝説tears of the kingdom",
+                question: "白龍の角を武器にスクラビルドしたときの追加効果はどれ？",
+                options: ["敵を睡眠させる", "煙幕を展開する", "自身の体力が回復する", "ソードビームが強化される"],
+                answer: 2
             },
             {
                 gameTitle: "スプラトゥーン",
-                question: "",
-                options: ["パワーエサ", "スーパーキノコ", "チェリー", "スター"],
+                question: "スピナー系武器「クーゲルシュライバー」とは，何が元ネタの武器？",
+                options: ["鉛筆削機", "グルーガン", "ボールペン", "分度器"],
+                answer: 2
+            },
+            {
+                gameTitle: "Undertale",
+                question: "恋愛シミュレーションゲーム「Mew Mew Kissy Cutie」Mew Mewの好きな食べ物は？",
+                options: ["カタツムリ味アイス", "グラマーバーガー", "インスタント麺", "スパイダードーナツ"],
                 answer: 0
+            },
+            {
+                gameTitle: "大乱闘スマッシュブラザーズ",
+                question: "ウルフの下スマッシュ攻撃の名前は？",
+                options: ["ローアタックコンビネーション", "ダブルスラスト", "あばれひっかき", "ガストスラッシュ"],
+                answer: 3
+            },
+            {
+                gameTitle: "Among Us",
+                question: "Among Usの制作会社「Innersloth」のロゴマークに描かれている動物は何？",
+                options: ["カピバラ", "ナマケモノ", "オカピ", "マレーバク"],
+                answer: 1
+            },
+            {
+                gameTitle: "スプラトゥーン",
+                question: "スピナー系武器「クーゲルシュライバー」とは，何が元ネタの武器？",
+                options: ["鉛筆削機", "グルーガン", "ボールペン", "分度器"],
+                answer: 2
+            },
+                        {
+                gameTitle: "リズム天国ミラクルスターズ",
+                question: "「モンスターテニス3」のラスボス最終象牙獣の名前は？",
+                options: ["ハッポイナー", "ハーデス", "ハーデリア", "マイティー・ハー"],
+                answer: 1
+            },
+                        {
+                gameTitle: "カービィ，東方project",
+                question: "次のカービィBGMに混ざった東方projectのBGMはどれ？",
+                options: ["この星をかけた魂の戦い", "故郷の星が映る海", "星砕きの戯れ", "双星はいつしかロッシュ限界へ"],
+                answer: 1
             }
         ];
 
@@ -254,7 +284,7 @@
 
         // 開始処理
         function startQuiz() {
-            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            shuffledQuestions = [...quizData];
             currentQuestionIndex = 0;
             score = 0;
 
@@ -275,7 +305,7 @@
             currentScore.textContent = `スコア: ${score}`;
             
             // 変更点4: ゲームタイトルと問題文をセット
-            gameTitleText.textContent = `🎮 ${currentQuestion.gameTitle}`;
+            gameTitleText.textContent = `${currentQuestion.gameTitle}`;
             questionText.textContent = currentQuestion.question;
 
             optionButtons.forEach((button, index) => {
