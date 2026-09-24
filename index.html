@@ -244,8 +244,8 @@
             {
                 gameTitle: "リズム天国ミラクルスターズ",
                 question: "「モンスターテニス3」のラスボス最終象牙獣の名前は？",
-                options: ["ハッポイナー", "ハーデス", "ハーデリア", "マイティー・ハー"],
-                answer: 1
+                options: ["ハーデス", "ハッポイナー", "ハーデリア", "マイティー・ハー"],
+                answer: 0
             },
                         {
                 gameTitle: "カービィ，東方project",
@@ -349,7 +349,7 @@
 
             const ratio = score / total;
             if (ratio === 1) {
-                resultComment.textContent = "全問正解は普通にすごい";
+                resultComment.textContent = "普通にすごい";
             } else if (ratio >= 0.6) {
                 resultComment.textContent = "なかなかやるじゃない";
             } else {
